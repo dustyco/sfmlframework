@@ -1,11 +1,15 @@
 
 #include <iostream>
 #include <cmath>
+using namespace std;
+
+#ifdef _WIN32
+	#include <windows.h>
+#endif
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Clock.hpp>
-using namespace std;
 
 
 // A simple realtime OpenGL render window template for quick projects
