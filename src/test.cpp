@@ -14,12 +14,13 @@ class App : public SFMLApp {
 	sf::Sprite   sprite;
 };
 bool App::setup () {
-	if (bridge.loadFromFile("bridge.png")) {
+	if (bridge.loadFromFile("bridge.jpg")) {
 		bridge.setSmooth(true);
 		sprite.setTexture(bridge);
 		sf::Vector2<unsigned int> size = bridge.getSize();
 		sprite.setOrigin(size.x/2, size.y/2);
-		sprite.scale(4, 4);
+		float scale = 1.0;
+		sprite.scale(scale, scale);
 	} else return false;
 	return true;
 }

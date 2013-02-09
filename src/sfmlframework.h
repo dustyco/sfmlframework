@@ -142,6 +142,10 @@ bool SFMLApp::_setup () {
 	window.setVerticalSyncEnabled(true);
 	window.setMouseCursorVisible(true);
 	
+#ifdef SFML_SYSTEM_WINDOWS
+	ShowWindow(window.getSystemHandle(), SW_MAXIMIZE);
+#endif
+	
 	// User setup
 	if (!setup()) return false;
 	
