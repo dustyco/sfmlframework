@@ -99,4 +99,13 @@ endif ()
 add_executable(test ${test_SRC})
 target_link_libraries(test ${test_LIB})
 
- 
+add_custom_command(
+	TARGET test POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	"${PROJECT_SOURCE_DIR}/data"
+	$<TARGET_FILE_DIR:test>
+)
+        
+        
+        
+        
