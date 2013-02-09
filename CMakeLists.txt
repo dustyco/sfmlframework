@@ -68,40 +68,6 @@ macro(propagate_groups)
 endmacro()
 
 
-# Decide where to look
-set(BOOST_ROOT_ENV $ENV{BOOST_ROOT})
-if(BOOST_ROOT_ENV)
-	# Get boost from a specifically defined folder
-	set(BOOST_ROOT $ENV{BOOST_ROOT})
-	message("BOOST_ROOT: " ${BOOST_ROOT})
-endif()
-
-# Specify which linkable libraries we should find
-set(Boost_USE_STATIC_LIBS   ON)
-set(Boost_USE_MULTITHREADED ON)
-if (WIN32)
-	# Mingw32 makes it a different name unless you set this
-	set(Boost_THREADAPI win32)
-else ()
-	set(Boost_THREADAPI pthread)
-endif ()
-set(BOOST_COMPONENTS
-	system
-	thread
-	chrono
-)
-
-# Find it
-find_package(Boost REQUIRED COMPONENTS ${BOOST_COMPONENTS})
-include_directories(${Boost_INCLUDE_DIR})
-add_definitions(-DBOOST_ALL_NO_LIB)
-add_definitions(-DBOOST_THREAD_USE_LIB)
-if (WIN32)
-	set(Boost_THREAD_LIBRARY wsock32 ${Boost_THREAD_LIBRARY})
-else ()
-	set(Boost_THREAD_LIBRARY pthread ${Boost_THREAD_LIBRARY})
-endif ()
-
 
 # Find OpenGL
 find_package(OpenGL REQUIRED)
@@ -111,7 +77,10 @@ message("OPENGL_gl_LIBRARY: ${OPENGL_gl_LIBRARY}")
 
 
 # Find SFML
-#set(SFML_STATIC_LIBRARIES TRUE)
+if (MSVC)
+	set(CMAKE_MODULE_PATH $ENV{SFMLDIR}/cmake/Modules ${CMAKE_MODULE_PATH})
+	set(SFML_STATIC_LIBRARIES TRUE)
+endif ()
 find_package(SFML REQUIRED COMPONENTS system window graphics)
 include_directories(${SFML_INCLUDE_DIR})
 set(SFML_LIBRARIES ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${SFML_LIBRARIES})
