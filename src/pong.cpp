@@ -46,8 +46,10 @@ void Pong::tick (double dt) {
 	} else if (-ball_py>(0.5-LINE_THICKNESS*2.5)) {
 		ball_vy = fabs(ball_vy);
 	}
-	if (ball_px>(FIELD_ASPECT*0.5-LINE_THICKNESS*2.5) || -ball_px>(FIELD_ASPECT*0.5-LINE_THICKNESS*2.5)) {
-		ball_vx = -ball_vx;
+	if (ball_px>(FIELD_ASPECT*0.5-LINE_THICKNESS*2.5)) {
+		ball_vx = -fabs(ball_vx);
+	} else if (-ball_px>(FIELD_ASPECT*0.5-LINE_THICKNESS*2.5)) {
+		ball_vx = fabs(ball_vx);
 	}
 }
 
