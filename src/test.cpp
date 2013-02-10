@@ -35,7 +35,7 @@ bool App::setup () {
 		return false;
 	}
 	
-	if (tiles.loadFromFile("tiles1.png")) {
+	if (tiles.loadFromFile("tiles2.png")) {
 		tiles.setSmooth(true);
 		tiles_sprite.setTexture(tiles);
 		tiles_sprite.setTextureRect(sf::IntRect(64*4, 64*5, 64, 64));
@@ -81,11 +81,11 @@ bool App::loop (int w, int h, double t) {
 		
 		unsigned char depth = rand()/(RAND_MAX/256);
 		
-		tiles_sprite.setPosition(w/2 + col/2*x - col/2*y, h/2 + col/4*y + col/4*x + depth/64);
+		tiles_sprite.setPosition(w/2 + col/2*x - col/2*y, h/2 + col/4*y + col/4*x + depth/32);
 //		states.shader = &shader;
 		unsigned char color = 255-depth/4;
-		tiles_sprite.setColor(sf::Color(color, color, color, 255));
-		sf::IntRect rect = (rand()%2==0)?sf::IntRect(64*5, 64*5, 64, 64):sf::IntRect(64*4, 64*5, 64, 64);
+//		tiles_sprite.setColor(sf::Color(200, color, color, 255));
+		sf::IntRect rect = sf::IntRect(64*(rand()/(RAND_MAX/4)), 64*0, 64, 64);
 		tiles_sprite.setTextureRect(rect);
 		window.draw(tiles_sprite, states);
 	}
