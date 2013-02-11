@@ -60,19 +60,19 @@ class App : public SFMLApp, public Pong {
 	bool loop (int w, int h, double t);
 	bool cleanup ();
 	
-//	sf::Font     font;
-//	sf::Text     text;
+	sf::Font     font;
+	sf::Text     text;
 	
 	double t_last;
 };
 bool App::setup () {
-/*	if (font.loadFromFile("DroidSans-Bold.ttf")) {
+	if (font.loadFromFile("DroidSans-Bold.ttf")) {
 		text.setString("Hello, world!");
 		text.setFont(font);
 		text.setColor(sf::Color(255, 255, 255));
-		text.setCharacterSize(50);
+		text.setCharacterSize(20);
 	}
-*/	
+	
 	t_last = 0.0;
 	startGame();
 	
@@ -89,8 +89,13 @@ bool App::loop (int w, int h, double t) {
 	if (screen_aspect>FIELD_ASPECT) draw_scale = h;
 	else                            draw_scale = h/FIELD_ASPECT;
 	
+	// Debug text        
+	stringstream s; s << h;
+	text.setString(s.str());
+	text.setPosition(0, h-20);
+	window.draw(text);
+	
 	// Draw field
-//	window.draw(text);
 	{
 		sf::RectangleShape rect;
 		rect.setFillColor(sf::Color(255, 255, 255, 255));
