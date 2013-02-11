@@ -16,4 +16,9 @@ require_libraries(pong
 	${SFML_LIBRARIES}
 )
 
+add_sources(shader shader.cpp)
+require_libraries(shader
+	${SFML_LIBRARIES}
+)
+
 propagate_groups()

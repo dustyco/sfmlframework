@@ -56,13 +56,14 @@ protected:
 	bool _loop ();
 	bool _cleanup ();
 	
-	sf::RenderWindow    window;
-	sf::VideoMode       video_mode;
-	sf::Event           event;
-	sf::Clock           clock;
-	string              window_title;
-	bool                running;
-	int                 mouse_x, mouse_y;
+	sf::RenderWindow  window;
+	sf::View          view;
+	sf::VideoMode     video_mode;
+	sf::Event         event;
+	sf::Clock         clock;
+	string            window_title;
+	bool              running;
+	int               mouse_x, mouse_y;
 };
 
 
@@ -216,6 +217,9 @@ bool SFMLApp::_loop () {
 	while (running) {
 		// Pre-user loop
 		window.clear();
+		view.reset(sf::FloatRect(0, 0, window.getSize().x, window.getSize().y));
+		view.setViewport(sf::FloatRect(0.0, 0.0, 1.0, 1.0));
+		window.setView(view);
 		double time = (double)(clock.getElapsedTime().asMicroseconds())*1e-6;
 		_input();
 	

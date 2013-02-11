@@ -104,6 +104,10 @@ target_link_libraries(test ${test_LIB})
 add_executable(pong ${pong_SRC})
 target_link_libraries(pong ${pong_LIB})
 
+# Shader executable
+add_executable(shader ${shader_SRC})
+target_link_libraries(shader ${shader_LIB})
+
 add_custom_command(
 	TARGET test POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
