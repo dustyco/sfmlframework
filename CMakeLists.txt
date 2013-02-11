@@ -72,6 +72,7 @@ endmacro()
 # Find OpenGL
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
+message(" OPENGL_INCLUDE_DIR: ${OPENGL_INCLUDE_DIR}")
 message(" OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
 message("OPENGL_gl_LIBRARY: ${OPENGL_gl_LIBRARY}")
 

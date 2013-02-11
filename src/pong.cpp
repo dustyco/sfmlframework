@@ -42,13 +42,17 @@ void Pong::tick (double dt) {
 	
 	// Collision check
 	if (ball_py>(0.5-LINE_THICKNESS*2.5)) {
+		// Top wall
 		ball_vy = -fabs(ball_vy);
 	} else if (-ball_py>(0.5-LINE_THICKNESS*2.5)) {
+		// Bottom wall
 		ball_vy = fabs(ball_vy);
 	}
 	if (ball_px>(FIELD_ASPECT*0.5-LINE_THICKNESS*2.5)) {
+		// Right paddle
 		ball_vx = -fabs(ball_vx);
 	} else if (-ball_px>(FIELD_ASPECT*0.5-LINE_THICKNESS*2.5)) {
+		// Left paddle
 		ball_vx = fabs(ball_vx);
 	}
 }
@@ -87,7 +91,7 @@ bool App::loop (int w, int h, double t) {
 	float draw_scale;
 	float screen_aspect = float(w)/h;
 	if (screen_aspect>FIELD_ASPECT) draw_scale = h;
-	else                            draw_scale = h/FIELD_ASPECT;
+	else                            draw_scale = w/FIELD_ASPECT;
 	
 	// Debug text        
 	stringstream s; s << h;
