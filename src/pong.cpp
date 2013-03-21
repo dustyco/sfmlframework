@@ -15,84 +15,7 @@ const static float LINE_THICKNESS = 1.0/25.0;
 const static float BALL_SPEED     = 1.0/1.0;
 const static float PADDLE_SPEED   = 1.0/1.0;
 const static float PADDLE_WIDTH   = 0.2;
-
-const static bool x = true;
-const static bool o = false;
-const static bool NUM[10][20] = {
-	{
-		// 0
-		x, x, x, o,
-		x, o, x, o,
-		x, o, x, o,
-		x, o, x, o,
-		x, x, x, o
-	}, {
-		// 1
-		o, x, o, o,
-		o, x, o, o,
-		o, x, o, o,
-		o, x, o, o,
-		o, x, o, o
-	}, {
-		// 2
-		x, x, x, o,
-		o, o, x, o,
-		x, x, x, o,
-		x, o, o, o,
-		x, x, x, o
-	}, {
-		// 3
-		x, x, x, o,
-		o, o, x, o,
-		x, x, x, o,
-		o, o, x, o,
-		x, x, x, o
-	}, {
-		// 4
-		x, o, x, o,
-		x, o, x, o,
-		x, x, x, o,
-		o, o, x, o,
-		o, o, x, o
-	}, {
-		// 5
-		x, x, x, o,
-		x, o, o, o,
-		x, x, x, o,
-		o, o, x, o,
-		x, x, x, o
-	}, {
-		// 6
-		x, x, x, o,
-		x, o, o, o,
-		x, x, x, o,
-		x, o, x, o,
-		x, x, x, o
-	}, {
-		// 7
-		x, x, x, o,
-		o, o, x, o,
-		o, o, x, o,
-		o, o, x, o,
-		o, o, x, o
-	}, {
-		// 8
-		x, x, x, o,
-		x, o, x, o,
-		x, x, x, o,
-		x, o, x, o,
-		x, x, x, o
-	}, {
-		// 9
-		x, x, x, o,
-		x, o, x, o,
-		x, x, x, o,
-		o, o, x, o,
-		o, o, x, o
-	}
-
-
-};
+const static float TIME_SPEED     = 0.5;
 
 
 class Pong {
@@ -113,25 +36,27 @@ public:
 	float pause;
 	int score1, score2;
 };
-void Pong::startGame () {
+void Pong::startGame ()
+{
 	resetBall();
 	score1 = score2 = 0;
 	ball_vx = ball_vy = BALL_SPEED;
 	pad1 = pad2 = 0;
 }
-void Pong::tick (double dt) {
+void Pong::tick (double dt)
+{
+	// Scale time
+	dt *= TIME_SPEED;
+	
 	// Delay countdown
 	pause -= dt;
-
 	if (pause > 0) return;
 
 	// Move the ball
 	ball_px += ball_vx*dt;
 	ball_py += ball_vy*dt;
 	
-	// Move the paddles
-	
-	// Collision check
+	// Ball collision checks
 	if (ball_py>(0.5-LINE_THICKNESS*2.5)) {
 		// Top wall
 		ball_vy = -fabs(ball_vy);
@@ -139,6 +64,8 @@ void Pong::tick (double dt) {
 		// Bottom wall
 		ball_vy = fabs(ball_vy);
 	}
+	
+	
 	if (ball_px>(FIELD_ASPECT*0.5-LINE_THICKNESS*2.5)) {
 		// Right paddle
 		if (ball_py < pad2+PADDLE_WIDTH-LINE_THICKNESS/2 && ball_py > pad2-PADDLE_WIDTH+LINE_THICKNESS/2) {
@@ -160,23 +87,21 @@ void Pong::tick (double dt) {
 			resetBall();
 		}
 	}
-	// Control paddle 1
-	if (controls.key_w && pad1 + PADDLE_WIDTH/2 < 0.5 - LINE_THICKNESS*2) {
+	
+	// Control paddles
+	if (controls.key_w && pad1 + PADDLE_WIDTH/2 < 0.5 - LINE_THICKNESS*2)
 		pad1 += PADDLE_SPEED*dt;
-	}
-	if (controls.key_s && pad1 - PADDLE_WIDTH/2 > -0.5 + LINE_THICKNESS*2) {
+	if (controls.key_s && pad1 - PADDLE_WIDTH/2 > -0.5 + LINE_THICKNESS*2)
 		pad1 -= PADDLE_SPEED*dt;
-	}
-	// Control paddle 2
-	if (controls.key_up && pad2 + PADDLE_WIDTH/2 < 0.5 - LINE_THICKNESS*2) {
+		
+	if (controls.key_up && pad2 + PADDLE_WIDTH/2 < 0.5 - LINE_THICKNESS*2)
 		pad2 += PADDLE_SPEED*dt;
-	}
-	if (controls.key_down && pad2 - PADDLE_WIDTH/2 > -0.5 + LINE_THICKNESS*2) {
+	if (controls.key_down && pad2 - PADDLE_WIDTH/2 > -0.5 + LINE_THICKNESS*2)
 		pad2 -= PADDLE_SPEED*dt;
-	}
 	
 }
-void Pong::resetBall () {
+void Pong::resetBall ()
+{
 	ball_px = ball_py = 0;
 	pause = 1;
 }
@@ -192,22 +117,16 @@ class App : public SFMLApp, public Pong {
 	
 	double t_last;
 };
-bool App::setup () {
-	if (font.loadFromFile("DroidSans-Bold.ttf")) {
-		text.setString("Hello, world!");
-		text.setFont(font);
-		text.setColor(sf::Color(255, 255, 255));
-		text.setCharacterSize(20);
-	}
-	
+bool App::setup ()
+{
 	t_last = 0.0;
 	startGame();
 	
 	return true;
 }
-bool App::loop (int w, int h, double t) {
-	
-	App::handleInput();
+bool App::loop (int w, int h, double t)
+{
+	handleInput();
 
 	tick(t-t_last);
 	t_last = t;
@@ -264,10 +183,8 @@ bool App::loop (int w, int h, double t) {
 bool App::cleanup () {
 	return true;
 }
-void App::handleInput () {
-
-
-	
+void App::handleInput ()
+{
 	while (window.pollEvent(event)) {
 		switch (event.type) {
 			// Window events
