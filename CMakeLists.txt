@@ -114,6 +114,13 @@ add_custom_command(
 	"${PROJECT_SOURCE_DIR}/data"
 	$<TARGET_FILE_DIR:test>
 )
+
+add_custom_command(
+	TARGET pong POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy
+	"${PROJECT_SOURCE_DIR}/data/numbers.png"
+	$<TARGET_FILE_DIR:pong>
+)
         
         
         

@@ -11,7 +11,7 @@ using namespace std;
 // Distance unit: field-height
 // Speed unit:    field-height/second
 const static float FIELD_ASPECT   = 4.0/3.0;
-const static float LINE_THICKNESS = 1.0/25.0;
+const static float LINE_THICKNESS = 1.0/30.0;
 const static float BALL_SPEED     = 1.0/1.0;
 const static float PADDLE_SPEED   = 1.0/1.0;
 const static float PADDLE_WIDTH   = 0.2;
@@ -42,6 +42,7 @@ void Pong::startGame ()
 	score1 = score2 = 0;
 	ball_vx = ball_vy = BALL_SPEED;
 	pad1 = pad2 = 0;
+	score1 = score2 = 0;
 }
 void Pong::tick (double dt)
 {
@@ -111,15 +112,22 @@ class App : public SFMLApp, public Pong {
 	bool loop (int w, int h, double t);
 	bool cleanup ();
 	void handleInput();
+	void drawScore (float x, float y, int score);
 	
 	sf::Font     font;
 	sf::Text     text;
 	sf::View     view;
 	
+	sf::Texture  numbers;
+	
 	double t_last;
 };
 bool App::setup ()
 {
+	if (numbers.loadFromFile("numbers.png")) {
+		numbers.setSmooth(false);
+	} else return false;
+	
 	t_last = 0.0;
 	startGame();
 	
@@ -187,6 +195,11 @@ bool App::loop (int w, int h, double t)
 		rect.setPosition(FIELD_ASPECT/2 - LINE_THICKNESS*1.5, pad2);
 		window.draw(rect);
 	}
+	
+	// Draw scores
+	drawScore(-FIELD_ASPECT/4, 0.25, score1);
+	drawScore(FIELD_ASPECT/4, 0.25, score2);
+	
 	return true;
 }
 bool App::cleanup () {
@@ -248,6 +261,25 @@ void App::handleInput ()
 				}
 				break;
 		}
+	}
+}
+void App::drawScore (float x, float y, int score)
+{
+	sf::Sprite digit;
+	digit.setTexture(numbers);
+	digit.setOrigin(4.0/2, 5.0/2);
+	digit.setScale(LINE_THICKNESS, -LINE_THICKNESS);
+	
+	int i = 0;
+	stringstream s; s << score;
+	string digits = s.str();
+	for (string::iterator it=digits.begin(); it!=digits.end(); it++) {
+		int num = *it - '0';
+		if (num<0 || num>9) continue;
+		digit.setTextureRect(sf::IntRect(4*num, 0, 4, 5));
+		digit.setPosition(x + LINE_THICKNESS*4*i, y);
+		window.draw(digit);
+		i++;
 	}
 }
 
