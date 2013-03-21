@@ -158,58 +158,6 @@ bool SFMLApp::_setup () {
 	return true;
 }
 bool SFMLApp::_input () {
-	while (window.pollEvent(event)) {
-		switch (event.type) {
-			// Window events
-			case sf::Event::Closed:
-				running = false;
-				return true;
-			case sf::Event::Resized:
-				break;
-			case sf::Event::GainedFocus:
-				break;
-			case sf::Event::LostFocus:
-			//	controls->releaseKeys();
-				break;
-			
-			// Mouse + keyboard events
-			case sf::Event::MouseMoved:
-				mouse_x = event.mouseMove.x;
-				mouse_y = window.getSize().y - event.mouseMove.y;
-				break;
-			case sf::Event::KeyPressed:
-				switch (event.key.code) {
-				//	case sf::Keyboard::W:			controls->key_w = true;		break;
-				//	case sf::Keyboard::A:			controls->key_a = true;		break;
-				//	case sf::Keyboard::S:			controls->key_s = true;		break;
-				//	case sf::Keyboard::D:			controls->key_d = true;		break;
-				//	case sf::Keyboard::Space:		controls->key_space = true;	break;
-				//	case sf::Keyboard::LControl:	controls->key_ctrl = true;	break;
-					case sf::Keyboard::Escape:		running = false; return true;
-				/*	case sf::Keyboard::BackSlash:
-						window.create(
-							video_mode,
-							"carputer1",
-							sf::Style::Resize | sf::Style::Close
-							);
-						window.setVerticalSyncEnabled(true);
-						window.setMouseCursorVisible(true);
-						break; */
-				}
-				break;
-			case sf::Event::KeyReleased:
-				switch (event.key.code) {
-				//	case sf::Keyboard::W:		controls->key_w = false;	break;
-				//	case sf::Keyboard::A:		controls->key_a = false;	break;
-				//	case sf::Keyboard::S:		controls->key_s = false;	break;
-				//	case sf::Keyboard::D:		controls->key_d = false;	break;
-				//	case sf::Keyboard::Space:	controls->key_space = false;	break;
-				//	case sf::Keyboard::LControl:	controls->key_ctrl = false;	break;
-					case sf::Keyboard::Escape:	break;
-				}
-				break;
-		}
-	}
 	return true;
 }
 bool SFMLApp::_loop () {
