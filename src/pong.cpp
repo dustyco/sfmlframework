@@ -10,12 +10,12 @@ using namespace std;
 
 // Distance unit: field-height
 // Speed unit:    field-height/second
-const static float FIELD_ASPECT   = 1.5;
+const static float FIELD_ASPECT   = 4.0/3.0;
 const static float LINE_THICKNESS = 1.0/25.0;
 const static float BALL_SPEED     = 1.0/1.0;
 const static float PADDLE_SPEED   = 1.0/1.0;
 const static float PADDLE_WIDTH   = 0.2;
-const static float TIME_SPEED     = 0.5;
+const static float TIME_SPEED     = 1.0;
 
 
 class Pong {
@@ -114,6 +114,7 @@ class App : public SFMLApp, public Pong {
 	
 	sf::Font     font;
 	sf::Text     text;
+	sf::View     view;
 	
 	double t_last;
 };
@@ -126,32 +127,40 @@ bool App::setup ()
 }
 bool App::loop (int w, int h, double t)
 {
+	// Grab input
 	handleInput();
 
+	// Advance the simulation
 	tick(t-t_last);
 	t_last = t;
 	
-	// Drawing scale factor
-	float draw_scale;
+	// Set the view transform
 	float screen_aspect = float(w)/h;
-	if (screen_aspect>FIELD_ASPECT) draw_scale = h;
-	else                            draw_scale = w/FIELD_ASPECT;
+	if (screen_aspect>FIELD_ASPECT) view.reset(sf::FloatRect(-screen_aspect/2, 0.5, screen_aspect, -1));
+	else                            view.reset(sf::FloatRect(-FIELD_ASPECT/2, 0.5/screen_aspect*FIELD_ASPECT, FIELD_ASPECT, -1.0/screen_aspect*FIELD_ASPECT));
+	view.setViewport(sf::FloatRect(0, 0, 1, 1));
+	window.setView(view);
 	
-	// Debug text        
-	stringstream s; s << h;
-	text.setString(s.str());
-	text.setPosition(0, h-20);
-	window.draw(text);
+	// Draw dummy box
+	{
+		sf::RectangleShape rect;
+		rect.setFillColor(sf::Color(20, 20, 20, 255));
+		rect.setSize(sf::Vector2f(FIELD_ASPECT, 1));
+		rect.setOrigin(sf::Vector2f(FIELD_ASPECT/2, 0.5));
+		rect.setPosition(0, 0);
+		window.draw(rect);
+	}
 	
 	// Draw field
 	{
 		sf::RectangleShape rect;
 		rect.setFillColor(sf::Color(255, 255, 255, 255));
-		rect.setSize(sf::Vector2f(draw_scale*FIELD_ASPECT, LINE_THICKNESS*draw_scale));
+		rect.setSize(sf::Vector2f(FIELD_ASPECT, LINE_THICKNESS));
+		rect.setOrigin(sf::Vector2f(FIELD_ASPECT/2, LINE_THICKNESS/2));
 		
-		rect.setPosition(float(w/2) - draw_scale*0.5*FIELD_ASPECT, float(h/2) - draw_scale*(0.5-LINE_THICKNESS));
+		rect.setPosition(0, 0.5 - LINE_THICKNESS*1.5);
 		window.draw(rect);
-		rect.setPosition(float(w/2) - draw_scale*0.5*FIELD_ASPECT, float(h/2) + draw_scale*(0.5-LINE_THICKNESS*2));
+		rect.setPosition(0, -0.5 + LINE_THICKNESS*1.5);
 		window.draw(rect);
 	}
 	
@@ -159,9 +168,9 @@ bool App::loop (int w, int h, double t)
 	{
 		sf::RectangleShape rect;
 		rect.setFillColor(sf::Color(255, 255, 255, 255));
-		rect.setSize(sf::Vector2f(LINE_THICKNESS*draw_scale, LINE_THICKNESS*draw_scale));
-		rect.setOrigin(sf::Vector2f(LINE_THICKNESS*draw_scale/2, LINE_THICKNESS*draw_scale/2));
-		rect.setPosition(w/2 + draw_scale*ball_px, h/2 - draw_scale*ball_py);
+		rect.setSize(sf::Vector2f(LINE_THICKNESS, LINE_THICKNESS));
+		rect.setOrigin(sf::Vector2f(LINE_THICKNESS/2, LINE_THICKNESS/2));
+		rect.setPosition(ball_px, ball_py);
 		window.draw(rect);
 	}
 	
@@ -169,13 +178,13 @@ bool App::loop (int w, int h, double t)
 	{
 		sf::RectangleShape rect;
 		rect.setFillColor(sf::Color(255, 255, 255, 255));
-		rect.setSize(sf::Vector2f(LINE_THICKNESS*draw_scale, PADDLE_WIDTH*draw_scale));
-		rect.setOrigin(sf::Vector2f(LINE_THICKNESS*draw_scale/2, PADDLE_WIDTH*draw_scale/2));
+		rect.setSize(sf::Vector2f(LINE_THICKNESS, PADDLE_WIDTH));
+		rect.setOrigin(sf::Vector2f(LINE_THICKNESS/2, PADDLE_WIDTH/2));
 		// Draw paddle 1
-		rect.setPosition(LINE_THICKNESS*draw_scale*3.5, h/2 - draw_scale*pad1);
+		rect.setPosition(-FIELD_ASPECT/2 + LINE_THICKNESS*1.5, pad1);
 		window.draw(rect);
 		// Draw paddle 2
-		rect.setPosition(w - LINE_THICKNESS*draw_scale*3.5, h/2 - draw_scale*pad2);
+		rect.setPosition(FIELD_ASPECT/2 - LINE_THICKNESS*1.5, pad2);
 		window.draw(rect);
 	}
 	return true;
@@ -245,5 +254,5 @@ void App::handleInput ()
 
 int main (int argc, char const* argv[]) {
 	App app;
-	return app.go("sfmlframework");
+	return app.go("PONG");
 }
