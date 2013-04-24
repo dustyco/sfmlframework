@@ -201,24 +201,64 @@ namespace linear_algebra {
 	}
 	
 	// Utility functions /////////////////////////////////////////////////////////////////////////
-	template <int N, class R> R        magsquared (const vec<N,R>& v) {
+	template <int N, class R>         R magsquared (const vec<N,R>& v) {
 		R sum = 0;
 		for (int i=0; i<N; i++) sum += v[i]*v[i];
 		return sum;
 	}
-	template <int N, class R> R        mag        (const vec<N,R>& v) { return std::sqrt(magsquared(v)); }
-	template <int N, class R> vec<N,R> unit       (const vec<N,R>& v) { return v / mag(v); }
-	template <int N, class R> void     normalize  (vec<N,R>& v)       { v /= mag(v); }
-	template <int N, class R> R        dot        (const vec<N,R>& v1, const vec<N,R>& v2) {
+	template <int N, class R>        R  mag        (const vec<N,R>& v) { return std::sqrt(magsquared(v)); }
+	template <int N, class R> vec<N,R>  unit       (const vec<N,R>& v) { return v / mag(v); }
+	template <int N, class R>     void  normalize  (vec<N,R>& v)       { v /= mag(v); }
+	template <int N, class R>        R  dot        (const vec<N,R>& v1, const vec<N,R>& v2) {
 		R sum = 0;
 		for (int i=0; i<N; i++) sum += v1[i]*v2[i];
 		return sum;
 	}
-	template <int N, class R> float    angle      (const vec<N,R>& v1, const vec<N,R>& v2) {
+	template <int N, class R>    float  angle      (const vec<N,R>& v1, const vec<N,R>& v2) {
 		return std::acos(dot(unit(v1), unit(v2)));
 	}
+	// 2D only
+	template <class R>           float  angle_aa   (const vec<2,R>& v) {
+		if (v.x>0) {
+			// QI or QIV
+			if (v.y>0) {
+				// QI
+				return std::atan(float(v.y)/float(v.x));
+			} else if (v.y<0) {
+				// QIV
+				return std::atan(float(v.x)/std::fabs(float(v.y))) + 4.71238898f;
+			} else if (v.y==0) {
+				// West
+				return 0.0f;
+			}
+		} else if (v.x<0) {
+			// QII or QIII
+			if (v.y>0) {
+				// QII
+				return std::atan(std::fabs(float(v.x))/float(v.y)) +  1.57079633f;
+			} else if (v.y<0) {
+				// QIII
+				return std::atan(float(v.x)/std::fabs(float(v.y))) + 4.71238898f;
+			} else if (v.y==0) {
+				// West, pi
+				return 3.14159265f;
+			}
+		} else if (v.x==0) {
+			// On y axis
+			if (v.y>0) {
+				// North, pi/2
+				return 1.57079633f;
+			} else if (v.y<0) {
+				// South, 3*pi/2
+				return 4.71238898f;
+			} else if (v.y==0) {
+				// Origin
+				return 0.0f;
+			}
+		}
+	}
 	// 3D only
-	template <class R>        vec<3,R> cross      (const vec<3,R>& v1, const vec<3,R>& v2) {
+	template <class R>        vec<3,R>  cross      (const vec<3,R>& v1, const vec<3,R>& v2) {
 		return vec<3,R>(
 			v1.y*v2.z - v1.z*v2.y,
 			v1.z*v2.x - v1.x*v2.z,
@@ -238,9 +278,6 @@ namespace linear_algebra {
 	template <int N, class R>
 	struct mat {
 		static mat identity ();
-		
-		R&       operator[] (unsigned int i)       { return a[i]; }
-		const R& operator[] (unsigned int i) const { return a[i]; }
 	
 		R a[N][N];
 	};
@@ -250,9 +287,6 @@ namespace linear_algebra {
 	struct mat<2,R> {
 		mat () {}
 		mat (R theta);
-		
-		R&       operator[] (unsigned int i)       { return a[i]; }
-		const R& operator[] (unsigned int i) const { return a[i]; }
 	
 		R a[2][2];
 	};
@@ -262,18 +296,23 @@ namespace linear_algebra {
 	mat<2,R>::mat (R theta) {
 		R cos_theta = cos(theta);
 		R sin_theta = sin(theta);
-		a[0][0] = cos_theta; a[0][0] = -sin_theta;
-		a[0][0] = sin_theta; a[0][0] =  cos_theta;
+		a[0][0] = cos_theta; a[0][1] = -sin_theta;
+		a[1][0] = sin_theta; a[1][1] =  cos_theta;
 	}
 
-/*	// Vector-vector multiplication /////////////////////////////////////////////////////////////////
+	// Matrix-vector multiplication /////////////////////////////////////////////////////////////////
 	template <int N, class R>
-	vec<N,R> operator *  (const vec<N,R>& lhs, const vec<N,R>& rhs) {
+	vec<N,R> operator *  (const mat<N,R>& lhs, const vec<N,R>& rhs) {
 		vec<N,R> v;
-		for (int i=0; i<N; i++) v[i] = lhs[i] * rhs[i];
+		for (int row=0; row<N; row++) {
+			v[row] = 0;
+			for (int col=0; col<N; col++) {
+				v[row] += lhs.a[row][col] * rhs[col];
+			}
+		}
 		return v;
 	}
-*/
+
 	// Stream insertion /////////////////////////////////////////////////////////////////////////
 	/*
 		[ 1, 0 ]

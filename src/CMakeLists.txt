@@ -21,4 +21,9 @@ require_libraries(shader
 	${SFML_LIBRARIES}
 )
 
+add_sources(buoyancy_2d buoyancy_2d.cpp)
+require_libraries(buoyancy_2d
+	${SFML_LIBRARIES}
+)
+
 propagate_groups()

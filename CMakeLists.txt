@@ -108,6 +108,10 @@ target_link_libraries(pong ${pong_LIB})
 add_executable(shader ${shader_SRC})
 target_link_libraries(shader ${shader_LIB})
 
+# Shader executable
+add_executable(buoyancy_2d ${buoyancy_2d_SRC})
+target_link_libraries(buoyancy_2d ${buoyancy_2d_LIB})
+
 add_custom_command(
 	TARGET test POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
