@@ -87,7 +87,7 @@ bool App::loop (int w, int h, double t)
 		drawObject(*it, white);
 	}
 	drawPoly(current, white, true, true);
-	drawPoly(shadow, teal);
+//	drawPoly(shadow, teal);
 	
 	if (grab) drawLine(grab_r_abs, mouse);
 	
@@ -174,22 +174,13 @@ void App::drawPoly (const Poly& poly, sf::Color color, bool outline, bool points
 			Vec dif = (now-last);
 			Vec norm(-dif.y, dif.x);
 			
-			if (is_left(now, water)) {
-				drawPoint(now, color);
-			}
-			
 			if (outline) {
 				// Draw lines
 				drawLine(last, now);
-				
-				// Draw water intersect
-				if (touching(Line(last, now), water)) {
-					drawPoint(intersect(Line(last, now), water), color);
-				}
 			}
 			last = now;
 		}
-//		window.draw(sf_shape);
+		window.draw(sf_shape);
 	}
 	if (points) {
 		color.a = 250;

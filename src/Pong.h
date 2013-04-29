@@ -3,8 +3,7 @@
 
 #include "sfmlframework.h"
 #include "geometry.h"
-using namespace linear_algebra;
-using namespace geometry;
+using namespace hmath;
 typedef vec<2,float> Vec;
 typedef rect_aa<float> Rect;
 

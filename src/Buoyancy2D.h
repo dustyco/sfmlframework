@@ -97,6 +97,7 @@ void Buoyancy2D::init () {
 }
 
 void Buoyancy2D::tick (float dt) {
+	// Update drawing shadow
 	shadow.clear();
 	if (current.size()>=2) {
 		shadow.push_back(*current.begin());
@@ -108,10 +109,10 @@ void Buoyancy2D::tick (float dt) {
 		Object& obj = *it_obj;
 		Mat rot(obj.rot);
 		
-		// Gravity
+		// Apply gravity
 		obj.posv.y -= EARTH_ACCEL*dt;
 		
-		// Buoyancy
+		// Apply buoyancy
 		Vec pt_last = rot*obj.points.back() + obj.pos;
 		bool below_last = is_left(pt_last, water);
 		for (Poly::iterator it_pt=obj.points.begin(); it_pt!=obj.points.end(); ++it_pt) {
@@ -120,36 +121,36 @@ void Buoyancy2D::tick (float dt) {
 			Vec force, r;
 			
 			// Test the nature of the segment
+			bool apply_buoyancy = true;
 			if (below!=below_last) {
 				// Crosses the water line
+				// Find the intersect and process only the submerged part
 				Vec transition = intersect(Line(pt_last, pt), water);
 				if (below_last) pt = transition;
 				else pt_last = transition;
-				
-				Vec center = (pt_last + pt)*0.5f;
-				float pressure = distance(center, water)*20;
-				force = normal(Line(pt_last, pt))*pressure;
-//				force = Vec(0, pressure*length(pt-pt_last));
-				r = center-obj.pos;
-				
-			} else if (below) {
-				// Entirely submerged
-				Vec center = (pt_last + pt)*0.5f;
-				float pressure = distance(center, water)*20;
-				force = normal(Line(pt_last, pt))*pressure;
-//				force = Vec(0, pressure*length(pt-pt_last));
-				r = center-obj.pos;
-				
-			} else {
+			} else if (!below) {
 				// Entirely in air
-				force = Vec::origin();
+				apply_buoyancy = false;
 			}
-			obj.rotv += cross(r, force)/obj.moment*dt;
-			obj.posv += force/obj.area*dt;
+			
+			// Apply it if appropriate
+			if (apply_buoyancy) {
+				Vec center = (pt_last + pt)*0.5f;
+				float pressure = distance(center, water)*50;
+				force = normal(Line(pt_last, pt))*pressure;
+				r = center-obj.pos;
+				
+				obj.rotv += cross(r, force)/obj.moment*dt;
+				obj.posv += force/obj.area*dt;
+			}
 			
 			pt_last = rot*(*it_pt) + obj.pos;
 			below_last = below;
 		}
+		
+		// Quick and incorrect drag
+		obj.rotv *= 0.99f;
+		obj.posv *= 0.99f;
 		
 		// Integrate movement
 		obj.rot += obj.rotv*dt;

@@ -96,36 +96,48 @@ if (MINGW)
 #	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${BAR_CXX_FLAGS} -static-libgcc -static-libstdc++")
 endif ()
 
-# Game client executable
-add_executable(test ${test_SRC})
-target_link_libraries(test ${test_LIB})
-
-# Pong executable
-add_executable(pong ${pong_SRC})
-target_link_libraries(pong ${pong_LIB})
-
-# Shader executable
-add_executable(shader ${shader_SRC})
-target_link_libraries(shader ${shader_LIB})
-
-# Shader executable
-add_executable(buoyancy_2d ${buoyancy_2d_SRC})
-target_link_libraries(buoyancy_2d ${buoyancy_2d_LIB})
-
+# Test executable
+set(test_NAME test)
+add_executable(${test_NAME} ${test_SRC})
+target_link_libraries(${test_NAME} ${test_LIB})
 add_custom_command(
-	TARGET test POST_BUILD
+	TARGET ${test_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 	"${PROJECT_SOURCE_DIR}/data"
-	$<TARGET_FILE_DIR:test>
+	$<TARGET_FILE_DIR:${test_NAME}>
+)
+# Pong executable
+set(pong_NAME pong)
+add_executable(${pong_NAME} ${pong_SRC})
+target_link_libraries(${pong_NAME} ${pong_LIB})
+add_custom_command(
+	TARGET ${pong_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	"${PROJECT_SOURCE_DIR}/data"
+	$<TARGET_FILE_DIR:${pong_NAME}>
 )
 
+# Shader executable
+set(shader_NAME shader)
+add_executable(${shader_NAME} ${shader_SRC})
+target_link_libraries(${shader_NAME} ${shader_LIB})
 add_custom_command(
-	TARGET pong POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy
-	"${PROJECT_SOURCE_DIR}/data/numbers.png"
-	$<TARGET_FILE_DIR:pong>
+	TARGET ${shader_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	"${PROJECT_SOURCE_DIR}/data"
+	$<TARGET_FILE_DIR:${shader_NAME}>
 )
-        
-        
-        
-        
+
+# Buoyancy2D executable
+set(buoyancy_2d_NAME buoyancy_2d)
+add_executable(${buoyancy_2d_NAME} ${buoyancy_2d_SRC})
+target_link_libraries(${buoyancy_2d_NAME} ${buoyancy_2d_LIB})
+add_custom_command(
+	TARGET ${buoyancy_2d_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	"${PROJECT_SOURCE_DIR}/data"
+	$<TARGET_FILE_DIR:${buoyancy_2d_NAME}>
+)
+
+
+

@@ -35,7 +35,7 @@ bool App::setup () {
 		return false;
 	}
 	
-	if (tiles.loadFromFile("tiles2.png")) {
+	if (tiles.loadFromFile("tiles.png")) {
 		tiles.setSmooth(true);
 		tiles_sprite.setTexture(tiles);
 		tiles_sprite.setTextureRect(sf::IntRect(64*4, 64*5, 64, 64));
