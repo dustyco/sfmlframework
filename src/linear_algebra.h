@@ -1,25 +1,27 @@
 
 
 /*
+	Higher Math Utility Headers
+	http://github.com/dustyco/hmath
+	
 	Linear Algebra
-	See README for usage info
-	http://github.com/dustyco/linear_algebra
+	See github wiki for usage info
+	https://github.com/dustyco/hmath/wiki/Linear-Algebra
 	
 	Changes:
-		2013-03-07, 0.1
+		2013-03-07
 			Switched vector-scalar division overloads to use std::numeric_limits<R>::is_iec559 instead
 			Added vector bracket operator
 */
 
 
 #pragma once
-
 #include <iostream>
 #include <limits>
 #include <cmath>
 
 
-namespace linear_algebra {
+namespace hmath {
 	
 	// For static type comparison
 	template <class T, class U>
@@ -201,14 +203,14 @@ namespace linear_algebra {
 	}
 	
 	// Utility functions /////////////////////////////////////////////////////////////////////////
-	template <int N, class R>         R magsquared (const vec<N,R>& v) {
+	template <int N, class R>         R length_squared (const vec<N,R>& v) {
 		R sum = 0;
 		for (int i=0; i<N; i++) sum += v[i]*v[i];
 		return sum;
 	}
-	template <int N, class R>        R  mag        (const vec<N,R>& v) { return std::sqrt(magsquared(v)); }
-	template <int N, class R> vec<N,R>  unit       (const vec<N,R>& v) { return v / mag(v); }
-	template <int N, class R>     void  normalize  (vec<N,R>& v)       { v /= mag(v); }
+	template <int N, class R>        R  length     (const vec<N,R>& v) { return std::sqrt(length_squared(v)); }
+	template <int N, class R> vec<N,R>  unit       (const vec<N,R>& v) { return v / length(v); }
+	template <int N, class R>     void  normalize  (vec<N,R>& v)       { v /= length(v); }
 	template <int N, class R>        R  dot        (const vec<N,R>& v1, const vec<N,R>& v2) {
 		R sum = 0;
 		for (int i=0; i<N; i++) sum += v1[i]*v2[i];
@@ -251,11 +253,10 @@ namespace linear_algebra {
 			} else if (v.y<0) {
 				// South, 3*pi/2
 				return 4.71238898f;
-			} else if (v.y==0) {
-				// Origin
-				return 0.0f;
 			}
 		}
+		// Origin
+		return 0.0f;
 	}
 	// 3D only
 	template <class R>        vec<3,R>  cross      (const vec<3,R>& v1, const vec<3,R>& v2) {
@@ -265,14 +266,14 @@ namespace linear_algebra {
 			v1.x*v2.y - v1.y*v2.x
 		);
 	}
+	// 2D specialization of the 3D version which assumes
+	// the input vectors are on the same plane and returns
+	// the signed magnitude of the result
+	template <class R>               R  cross      (const vec<2,R>& v1, const vec<2,R>& v2) {
+		return v1.x*v2.y - v1.y*v2.x;
+	}
 	
-}
-
-
-
-
-
-namespace linear_algebra {
+	
 	
 	// Totally generic
 	template <int N, class R>

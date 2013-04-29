@@ -2,31 +2,33 @@
 #include <list>
 #include "sfmlframework.h"
 #include "geometry.h"
-using namespace linear_algebra;
-using namespace geometry;
+using namespace hmath;
 typedef vec<2,float> Vec;
 typedef mat<2,float> Mat;
+typedef line<2,float> Line;
 typedef std::list<Vec> Poly;
 
 
 // SI units
-const static float GRAVITY         = 6.67384e-11;  // m^2 / (kg*s^2)
+const static float GRAVITY         = 6.67384e-11;  // m^2 / kg / s^2
+const static float EARTH_RADIUS    = 6371e3;       // m
+const static float EARTH_MASS      = 5.972e24;     // kg
+const static float EARTH_ACCEL     = 9.80665;      // m / s^2
+
+const static float GRAB_STRENGTH   = 10.0;       // kg / m^3
+
 const static float WATER_DENSITY   = 1000.0;       // kg / m^3
 const static float OBJECT_DENSITY  = 100.0;        // kg / m^3
-const static float FIELD_ASPECT    = 16.0/9.0;
 const static int   TICKS_PER_FRAME = 1;
 
 
 struct Buoyancy2D {
-	struct Controls {
-		Vec mouse;
-	} controls;
 	
 	struct Object {
 		Poly  points;
 		Vec   pos, posv;
 		float rot, rotv;
-		float area;
+		float area, moment;
 		
 		void init () {
 			Poly::iterator first = points.begin();
@@ -70,21 +72,28 @@ struct Buoyancy2D {
 			posv = Vec(0.01, 0.01);
 			rot = 0;
 			rotv = 1;
+			moment = area*2/3;
 		}
 	};
 	
-	std::list<Object> objects;
-	Poly current, shadow;
 	float t;
+	Vec   mouse;
+	bool  grab, grab_last;
+	Vec   grab_r, grab_r_abs;
+	Line  water;
+	Poly  current, shadow;
+	std::list<Object> objects;
 	
-	void init ();
-	void tick (float dt);
-	void clickPrimary   ();
-	void clickSecondary ();
+	void init            ();
+	void tick            (float dt);
+	void placePoint      ();
+	void finalizeObject  ();
+	void releaseControls ();
 };
 
 void Buoyancy2D::init () {
-	// Set up
+	releaseControls();
+	water = Line(Vec(-10, 0), Vec(10, 0));
 }
 
 void Buoyancy2D::tick (float dt) {
@@ -92,23 +101,84 @@ void Buoyancy2D::tick (float dt) {
 	if (current.size()>=2) {
 		shadow.push_back(*current.begin());
 		shadow.push_back(*(--current.end()));
-		shadow.push_back(controls.mouse);
+		shadow.push_back(mouse);
 	}
-	for (std::list<Object>::iterator it=objects.begin(); it!=objects.end(); it++) {
-		it->posv.x = std::sin(t*3)/10;
-		it->posv.y = std::cos(t*3)/10;
-		it->rot += it->rotv*dt;
-		it->pos += it->posv*dt;
+	// Each object
+	for (std::list<Object>::iterator it_obj=objects.begin(); it_obj!=objects.end(); ++it_obj) {
+		Object& obj = *it_obj;
+		Mat rot(obj.rot);
+		
+		// Gravity
+		obj.posv.y -= EARTH_ACCEL*dt;
+		
+		// Buoyancy
+		Vec pt_last = rot*obj.points.back() + obj.pos;
+		bool below_last = is_left(pt_last, water);
+		for (Poly::iterator it_pt=obj.points.begin(); it_pt!=obj.points.end(); ++it_pt) {
+			Vec pt = rot*(*it_pt) + obj.pos;
+			bool below = is_left(pt, water);
+			Vec force, r;
+			
+			// Test the nature of the segment
+			if (below!=below_last) {
+				// Crosses the water line
+				Vec transition = intersect(Line(pt_last, pt), water);
+				if (below_last) pt = transition;
+				else pt_last = transition;
+				
+				Vec center = (pt_last + pt)*0.5f;
+				float pressure = distance(center, water)*20;
+				force = normal(Line(pt_last, pt))*pressure;
+//				force = Vec(0, pressure*length(pt-pt_last));
+				r = center-obj.pos;
+				
+			} else if (below) {
+				// Entirely submerged
+				Vec center = (pt_last + pt)*0.5f;
+				float pressure = distance(center, water)*20;
+				force = normal(Line(pt_last, pt))*pressure;
+//				force = Vec(0, pressure*length(pt-pt_last));
+				r = center-obj.pos;
+				
+			} else {
+				// Entirely in air
+				force = Vec::origin();
+			}
+			obj.rotv += cross(r, force)/obj.moment*dt;
+			obj.posv += force/obj.area*dt;
+			
+			pt_last = rot*(*it_pt) + obj.pos;
+			below_last = below;
+		}
+		
+		// Integrate movement
+		obj.rot += obj.rotv*dt;
+		obj.pos += obj.posv*dt;
+	}
+	
+	{
+		Object& obj = objects.front();
+		if (grab && !grab_last) {
+			// Begin grab
+			grab_r = Mat(-obj.rot)*(mouse-obj.pos);
+		}
+		if (grab) {
+			// Apply grab
+			grab_r_abs = obj.pos + Mat(obj.rot)*grab_r;
+			Vec grab_force = mouse-grab_r_abs;
+			float torque = cross(grab_r_abs-obj.pos, grab_force);
+			obj.posv += grab_force/obj.area*dt*GRAB_STRENGTH;
+			obj.rotv += torque/obj.moment*dt*GRAB_STRENGTH;
+		}
+		grab_last = grab;
 	}
 }
 
-void Buoyancy2D::clickPrimary () {
-	cout << "clickPrimary" << controls.mouse << endl;
-	current.push_back(controls.mouse);
+void Buoyancy2D::placePoint () {
+	current.push_back(mouse);
 }
 
-void Buoyancy2D::clickSecondary () {
-	cout << "clickSecondary" << controls.mouse << endl;
+void Buoyancy2D::finalizeObject () {
 	if (current.size()>=3) {
 		Object o;
 		o.points.swap(current);
@@ -116,4 +186,8 @@ void Buoyancy2D::clickSecondary () {
 		objects.push_back(o);
 	}
 	current.clear();
+}
+
+void Buoyancy2D::releaseControls () {
+	grab = false;
 }

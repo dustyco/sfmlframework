@@ -14,20 +14,20 @@ class App : public SFMLApp, public Buoyancy2D {
 	bool loop        (int w, int h, double t);
 	bool cleanup     ();
 	void handleInput ();
+	void drawLine    (const Vec& a, const Vec& b);
 	void drawPoly    (const Poly& poly, sf::Color color, bool outline = false, bool points = false);
 	void drawPoint   (const Vec& point, sf::Color color);
 	void drawObject  (const Object& object, sf::Color color);
 	Vec  viewTransformInverse (const Vec& v);
 	
+	double       t_last;
+	float        zoom;
 	sf::View     view;
-	float zoom;
-	
 	sf::Texture  line_texture;
 	sf::Texture  dot_texture;
 	sf::Sprite   line_sprite;
 	sf::Sprite   dot_sprite;
 	
-	double t_last;
 };
 bool App::setup ()
 {
@@ -77,11 +77,11 @@ bool App::loop (int w, int h, double t)
 	sf::Color gray(255, 255, 255, 100);
 	sf::Color teal(100, 255, 255, 100);
 	
-	int GRID_N = 1;
+/*	int GRID_N = 1;
 	for (int x=-GRID_N; x<=GRID_N; x++)
 	for (int y=-GRID_N; y<=GRID_N; y++)
 		drawPoint(Vec(x,y), white);
-	
+*/	
 	
 	for (std::list<Buoyancy2D::Object>::iterator it=objects.begin(); it!=objects.end(); it++) {
 		drawObject(*it, white);
@@ -89,6 +89,10 @@ bool App::loop (int w, int h, double t)
 	drawPoly(current, white, true, true);
 	drawPoly(shadow, teal);
 	
+	if (grab) drawLine(grab_r_abs, mouse);
+	
+	// Intersection test
+	drawLine(water.a, water.b);
 	
 //	line_sprite.rotate(dt*30);
 //	line_sprite.setOrigin(0, 1.5);
@@ -103,33 +107,30 @@ bool App::cleanup () {
 }
 void App::handleInput ()
 {
+	// State based controls
+	grab = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+	sf::Vector2i sf_mouse_pos = sf::Mouse::getPosition(window);
+	mouse = viewTransformInverse(Vec(sf_mouse_pos.x, sf_mouse_pos.y));
+	
+	// Event based controls
 	while (window.pollEvent(event)) {
 		switch (event.type) {
-			case sf::Event::Closed:      running = false; return;
-			case sf::Event::Resized:     break;
-			case sf::Event::GainedFocus: break;
-			case sf::Event::LostFocus:
-//				controls.releaseKeys();
-				break;
-			case sf::Event::MouseMoved:
-				controls.mouse = viewTransformInverse(Vec(event.mouseMove.x, event.mouseMove.y));
-				break;
+			case sf::Event::Closed:             running = false; return;
+			case sf::Event::LostFocus:          releaseControls(); break;
+//			case sf::Event::GainedFocus:        break;
+//			case sf::Event::Resized:            break;
+//			case sf::Event::MouseMoved:         event.mouseMove.x; break;
 			case sf::Event::MouseButtonPressed:
 				switch (event.mouseButton.button) {
-					case sf::Mouse::Left:
-						clickPrimary();
-						break;
-					case sf::Mouse::Right:
-						clickSecondary();
-						break;
+					case sf::Mouse::Left:       finalizeObject(); break;
+					case sf::Mouse::Right:      placePoint(); break;
 				}
 				break;
 			case sf::Event::KeyPressed:
 				switch (event.key.code) {
-					case sf::Keyboard::Escape:		running = false; return;
+					case sf::Keyboard::Escape:  running = false; return;
+					case sf::Keyboard::Return:  finalizeObject(); break;
 				}
-				break;
-			case sf::Event::KeyReleased:
 				break;
 		}
 	}
@@ -138,7 +139,6 @@ void App::handleInput ()
 Vec App::viewTransformInverse (const Vec& v) {
 	Vec r;
 	sf::Vector2u win = window.getSize();
-	cout << v << " / (" << win.x << ", " << win.y << ")" << endl;
 	float screen_aspect = float(win.y)/win.x;
 	r.x = (v.x-win.x/2)/win.y*zoom;
 	r.y = (-v.y+win.y/2)/win.y*zoom;
@@ -148,8 +148,16 @@ Vec App::viewTransformInverse (const Vec& v) {
 	return r;
 }
 
+void App::drawLine (const Vec& a, const Vec& b) {
+	line_sprite.setOrigin(0, 1.5);
+	line_sprite.setPosition(a.x, a.y);
+	line_sprite.setScale(length(b-a), 1.0/window.getSize().y*zoom*2.5);
+	line_sprite.setRotation(angle_aa(b-a)*57.29578);
+	window.draw(line_sprite);
+}
+
 void App::drawPoly (const Poly& poly, sf::Color color, bool outline, bool points) {
-	if (poly.size()>=3) {
+	if (poly.size()>=2) {
 		sf::ConvexShape sf_shape(poly.size());
 		color.a = 150;
 		sf_shape.setOutlineColor(color);
@@ -166,17 +174,22 @@ void App::drawPoly (const Poly& poly, sf::Color color, bool outline, bool points
 			Vec dif = (now-last);
 			Vec norm(-dif.y, dif.x);
 			
+			if (is_left(now, water)) {
+				drawPoint(now, color);
+			}
+			
 			if (outline) {
 				// Draw lines
-				line_sprite.setOrigin(0, 1.5);
-				line_sprite.setPosition(last.x, last.y);
-				line_sprite.setScale(mag(now-last), 1.0/window.getSize().y*zoom*2.5);
-				line_sprite.setRotation(angle_aa(now-last)*57.29578);
-				window.draw(line_sprite);
+				drawLine(last, now);
+				
+				// Draw water intersect
+				if (touching(Line(last, now), water)) {
+					drawPoint(intersect(Line(last, now), water), color);
+				}
 			}
 			last = now;
 		}
-		window.draw(sf_shape);
+//		window.draw(sf_shape);
 	}
 	if (points) {
 		color.a = 250;
@@ -187,12 +200,6 @@ void App::drawPoly (const Poly& poly, sf::Color color, bool outline, bool points
 }
 
 void App::drawPoint (const Vec& point, sf::Color color) {
-/*	sf::CircleShape c(0.006, 8);
-	c.setFillColor(color);
-	c.setOrigin(0.003, 0.003);
-	c.setPosition(point.x, point.y);
-	window.draw(c);
-*/	
 	dot_sprite.setPosition(point.x, point.y);
 	dot_sprite.setScale(1.0/window.getSize().y*zoom, 1.0/window.getSize().y*zoom);
 	window.draw(dot_sprite);
