@@ -1,15 +1,26 @@
 
 
+/*
+	Buoyancy2D
+	
+	
+*/
+
+
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include "Buoyancy2D.h"
 using namespace std;
 
 
-#include "Buoyancy2D.h"
-
-
-class App : public SFMLApp, public Buoyancy2D {
+struct App : public SFMLApp, public Buoyancy2D {
+	double       t_last;
+	float        zoom;
+	sf::View     view;
+	sf::Texture  line_texture, dot_texture;
+	sf::Sprite   line_sprite, dot_sprite;
+	
 	bool setup       ();
 	bool loop        (int w, int h, double t);
 	bool cleanup     ();
@@ -19,16 +30,8 @@ class App : public SFMLApp, public Buoyancy2D {
 	void drawPoint   (const Vec& point, sf::Color color);
 	void drawObject  (const Object& object, sf::Color color);
 	Vec  viewTransformInverse (const Vec& v);
-	
-	double       t_last;
-	float        zoom;
-	sf::View     view;
-	sf::Texture  line_texture;
-	sf::Texture  dot_texture;
-	sf::Sprite   line_sprite;
-	sf::Sprite   dot_sprite;
-	
 };
+
 bool App::setup ()
 {
 	t_last = 0.0;
@@ -53,6 +56,7 @@ bool App::setup ()
 	
 	return true;
 }
+
 bool App::loop (int w, int h, double t)
 {
 	// Grab input
@@ -102,9 +106,11 @@ bool App::loop (int w, int h, double t)
 	
 	return true;
 }
+
 bool App::cleanup () {
 	return true;
 }
+
 void App::handleInput ()
 {
 	// State based controls
@@ -142,9 +148,6 @@ Vec App::viewTransformInverse (const Vec& v) {
 	float screen_aspect = float(win.y)/win.x;
 	r.x = (v.x-win.x/2)/win.y*zoom;
 	r.y = (-v.y+win.y/2)/win.y*zoom;
-	
-//	1.0/window.getSize().y*zoom
-	
 	return r;
 }
 
@@ -163,7 +166,6 @@ void App::drawPoly (const Poly& poly, sf::Color color, bool outline, bool points
 		sf_shape.setOutlineColor(color);
 		color.a = 50;
 		sf_shape.setFillColor(color);
-//		if (outline) sf_shape.setOutlineThickness(0.003);
 	
 		int i = 0;
 		Vec last = *(--poly.end());
@@ -174,10 +176,7 @@ void App::drawPoly (const Poly& poly, sf::Color color, bool outline, bool points
 			Vec dif = (now-last);
 			Vec norm(-dif.y, dif.x);
 			
-			if (outline) {
-				// Draw lines
-				drawLine(last, now);
-			}
+			if (outline) drawLine(last, now);
 			last = now;
 		}
 		window.draw(sf_shape);

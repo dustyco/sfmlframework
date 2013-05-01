@@ -93,7 +93,7 @@ add_subdirectory(src)
 
 # So I don't have to distribute the compiler libraries that windows doesn't come with
 if (MINGW)
-#	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${BAR_CXX_FLAGS} -static-libgcc -static-libstdc++")
+#	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
 endif ()
 
 # Test executable

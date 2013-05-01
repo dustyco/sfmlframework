@@ -11,11 +11,14 @@
 
 
 #pragma once
-#include <list>
 #include "linear_algebra.h"
 
 
 namespace hmath {
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// TYPES ///////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	// ND straight line between two points
 	template <int N, class R>
@@ -25,7 +28,6 @@ namespace hmath {
 		line (const vec_type& a, const vec_type& b) : a(a), b(b) {}
 		vec_type a, b;
 	};
-	
 	
 	// 2D circle: position, radius
 	template <class R>
@@ -132,7 +134,7 @@ namespace hmath {
 	
 	// 2D: Intersection test: Concave polygon-point
 	template <class R, class Vec2Iterator>
-	bool touching (Vec2Iterator& first, Vec2Iterator& last, const vec<2,R&> point) {
+	bool touching (Vec2Iterator& first, Vec2Iterator& last, const vec<2,R>& point) {
 		// TODO
 		for (Vec2Iterator it=first; it!=last; ++it) {
 			
@@ -145,10 +147,65 @@ namespace hmath {
 		// TODO
 	}
 	
+	// 2D: Calculate the signed area and centroid of an irregular, concave, non-overlapping polygon
+	// See also: area
+	template <class R, class Vec2Iterator>
+	void area_and_centroid (const Vec2Iterator& first, const Vec2Iterator& last, R& area, vec<2,R>& centroid ) {
+		float x0, y0, x1, y1, a;
+		area = 0;
+		centroid = vec<2,R>::origin();
+		for (Vec2Iterator it=first; it!=last;) {
+			x0 = it->x;
+			y0 = it->y;
+			++it;
+			x1 = it->x;
+			y1 = it->y;
+			a = x0*y1 - x1*y0;
+			area += a;
+			centroid.x += (x0 + x1)*a;
+			centroid.y += (y0 + y1)*a;
+		}
+		// Last and first pair
+		x0 = last->x;
+		y0 = last->y;
+		x1 = first->x;
+		y1 = first->y;
+		a = x0*y1 - x1*y0;
+		area += a;
+		centroid.x += (x0 + x1)*a;
+		centroid.y += (y0 + y1)*a;
+		// Finalize
+		area /= 2;
+		centroid /= area*6;
+	}
+	
+	// 2D: Calculate the only the signed area of an irregular, concave, non-overlapping polygon
+	// See also: area_and_centroid
+	template <class R, class Vec2Iterator>
+	void area (const Vec2Iterator& first, const Vec2Iterator& last, R& area) {
+		float x0, y0, x1, y1;
+		area = 0;
+		for (Vec2Iterator it=first; it!=last;) {
+			x0 = it->x;
+			y0 = it->y;
+			++it;
+			x1 = it->x;
+			y1 = it->y;
+			area += x0*y1 - x1*y0;
+		}
+		// Last and first pair
+		x0 = last->x;
+		y0 = last->y;
+		x1 = first->x;
+		y1 = first->y;
+		area += x0*y1 - x1*y0;
+		// Finalize
+		area /= 2;
+	}
 	
 	template <class R>
 	bool touching (const circle<R>& a, const circle<R>& b) {
-		return (a.p-b.p).mag() < a.r+b.r;
+		return (a.p-b.p).length() < a.r+b.r;
 	}
 	
 	template <class R>
@@ -157,10 +214,4 @@ namespace hmath {
 			&& (a.p.y+a.ry)>(b.p.y-b.ry) && (a.p.y-a.ry)<(b.p.y+b.ry);
 	}
 	
-/*	template <class R>
-	bool touching (const rect<R>& a, const rect<R>& b) {
-		return (a.p.x+a.rx)>(b.p.x-b.rx) && (a.p.x-a.rx)<(b.p.x+b.rx)
-			&& (a.p.y+a.ry)>(b.p.y-b.ry) && (a.p.y-a.ry)<(b.p.y+b.ry);
-	}
-*/	
 }
