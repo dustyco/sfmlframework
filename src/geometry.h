@@ -11,6 +11,7 @@
 
 
 #pragma once
+#include <list>
 #include "linear_algebra.h"
 
 
