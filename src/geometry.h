@@ -99,15 +99,10 @@ namespace hmath {
 		return std::abs(distance_signed(point, line));
 	}
 	
-	// 2D: Return the normal vector of a line (magnitude proportional to the length of the segment)
+	// 2D: Return the normal vector of a line (rotate it by 90 degrees clockwise, same magnitude)
 	// http://stackoverflow.com/questions/1243614/how-do-i-calculate-the-normal-vector-of-a-line-segment
-	template <class R>
-	vec<2,R> normal (const line<2,R>& line) {
-		return vec<2,R>(
-			line.a.y - line.b.y,
-			line.b.x - line.a.x
-		);
-	}
+	template <class R> vec<2,R> normal   (const line<2,R>& line) { return normal(line.b-line.a); }
+	template <class R> vec<2,R> normal_i (const line<2,R>& line) { return normal_i(line.b-line.a); }
 	
 	// 2D: Intersection result: Two infinite lines (use test function first to see if the segments are crossing)
 	template <class R>

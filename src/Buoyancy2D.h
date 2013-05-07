@@ -3,7 +3,7 @@
 /*
 	
 */
-
+#include <iomanip>
 
 #pragma once
 #include <list>
@@ -43,6 +43,7 @@ struct Buoyancy2D {
 	Line   water;
 	Poly   current, shadow;
 	std::list<Object> objects;
+	std::list<Line>   lines;
 	
 	void init            ();
 	void tick            (float dt);
@@ -57,6 +58,8 @@ void Buoyancy2D::init () {
 }
 
 void Buoyancy2D::tick (float dt) {
+	// Clear lines
+	lines.clear();
 	// Update drawing shadow
 	shadow.clear();
 	if (current.size()>=2) {
@@ -68,9 +71,11 @@ void Buoyancy2D::tick (float dt) {
 	for (std::list<Object>::iterator it_obj=objects.begin(); it_obj!=objects.end(); ++it_obj) {
 		Object& obj = *it_obj;
 		Mat rot(obj.rot);
+		Vec posv = obj.posv;
+		float rotv = obj.rotv;
 		
 		// Apply gravity
-		obj.posv.y -= EARTH_ACCEL*dt;
+		posv.y -= EARTH_ACCEL*dt;
 		
 		// Apply buoyancy and drag
 		float speed = length(obj.posv);
@@ -95,17 +100,53 @@ void Buoyancy2D::tick (float dt) {
 				apply_buoyancy = false;
 			}
 			
-			// Apply it if appropriate
+			// If segment is below water
 			if (apply_buoyancy) {
+				// Static pressure (buoyancy)
 				Vec center = (pt_last + pt)*0.5f;
-				Vec norm = normal(Line(pt_last, pt));
-				float pressure = distance(center, water)*15;
-				float drag = dot(norm, posv_squared)*2;
+				Vec norm = normal_i(pt - pt_last);
+				float pressure = distance(center, water)*25;
+				float drag = 0;//dot(norm, posv_squared)*2;
 				force = norm*(pressure - drag);
 				r = center-obj.pos;
 				
-				obj.rotv += cross(r, force)/obj.moment*dt;
-				obj.posv += force/obj.area*dt;
+				rotv += cross(r, force)/obj.moment*dt;
+				posv += force/obj.area*dt;
+				
+				// Dynamic pressure (deflection)
+				Vec norm_unit = unit(norm);
+				Vec v1_abs = obj.posv - normal(pt_last-obj.pos)*obj.rotv;
+				Vec v2_abs = obj.posv - normal(pt-obj.pos)*obj.rotv;
+		//	lines.push_back(Line(pt_last, pt_last+v1_abs));
+		//	lines.push_back(Line(pt, pt+v2_abs));
+				float v1 = dot(norm_unit, v1_abs);
+				float v2 = dot(norm_unit, v2_abs);
+		//	lines.push_back(Line(pt_last, pt_last+norm_unit*v1));
+		//	lines.push_back(Line(pt, pt+norm_unit*v2));
+				float f1, f2; f1 = f2 = 0;
+				if (v1>0 != v2>0) {
+					// Different signs
+					float denomi = 1.0f/((v1-v2)*(v1-v2)*12);
+					float v12 = v1*v1;
+					float v13 = v1*v12;
+					float v14 = v12*v12;
+					float v22 = v2*v2;
+					float v23 = v2*v22;
+					float v24 = v22*v22;
+					f1 = (v24 + v2*v13*4 - v14*3)*denomi;
+					f2 = (v14 + v1*v23*4 - v24*3)*denomi;
+				} else {
+					// Same signs
+					f2 = v2*v2/4 + v2*v1/6 + v1*v1/12;
+					f1 = v1*v1/4 + v1*v2/6 + v2*v2/12;
+				}
+				if (v2<0) f1 = -f1;
+				if (v1<0) f2 = -f2;
+		//	lines.push_back(Line(pt_last, pt_last+norm_unit*f1));
+		//	lines.push_back(Line(pt, pt+norm_unit*f2));
+				rotv += cross(pt_last-obj.pos, norm*-f1)/obj.moment*dt;
+				rotv += cross(pt-obj.pos, norm*-f2)/obj.moment*dt;
+				posv -= norm*(f1+f2)/obj.area*dt;
 			}
 			
 			pt_last = rot*(*it_pt) + obj.pos;
@@ -113,12 +154,14 @@ void Buoyancy2D::tick (float dt) {
 		}
 		
 		// Quick and incorrect drag
-		obj.rotv *= 0.99f;
-		obj.posv *= 0.99f;
+		rotv *= 0.995f;
+		posv *= 0.995f;
 		
 		// Integrate movement
-		obj.rot += obj.rotv*dt;
-		obj.pos += obj.posv*dt;
+		obj.posv = posv;
+		obj.rotv = rotv;
+		obj.pos += posv*dt;
+		obj.rot += rotv*dt;
 	}
 	
 	{

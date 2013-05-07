@@ -98,6 +98,10 @@ bool App::loop (int w, int h, double t)
 	// Intersection test
 	drawLine(water.a, water.b);
 	
+	// Draw debug lines
+	for (std::list<Line>::iterator it = lines.begin(); it!=lines.end(); ++it)
+		drawLine(it->a, it->b);
+	
 //	line_sprite.rotate(dt*30);
 //	line_sprite.setOrigin(0, 1.5);
 //	line_sprite.setScale(1, 1.0/h*zoom*2);
