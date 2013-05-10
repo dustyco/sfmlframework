@@ -87,57 +87,18 @@ include_directories(${SFML_INCLUDE_DIR})
 set(SFML_LIBRARIES ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY} ${SFML_LIBRARIES})
 message("   SFML_LIBRARIES: ${SFML_LIBRARIES}")
 
-
-# Work through the source tree
-add_subdirectory(src)
-
 # So I don't have to distribute the compiler libraries that windows doesn't come with
+# Disabled because sfml links then dynamically anyway
 if (MINGW)
 #	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
 endif ()
 
-# Test executable
-set(test_NAME test)
-add_executable(${test_NAME} ${test_SRC})
-target_link_libraries(${test_NAME} ${test_LIB})
-add_custom_command(
-	TARGET ${test_NAME} POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	"${PROJECT_SOURCE_DIR}/data"
-	$<TARGET_FILE_DIR:${test_NAME}>
-)
-# Pong executable
-set(pong_NAME pong)
-add_executable(${pong_NAME} ${pong_SRC})
-target_link_libraries(${pong_NAME} ${pong_LIB})
-add_custom_command(
-	TARGET ${pong_NAME} POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	"${PROJECT_SOURCE_DIR}/data"
-	$<TARGET_FILE_DIR:${pong_NAME}>
-)
 
-# Shader executable
-set(shader_NAME shader)
-add_executable(${shader_NAME} ${shader_SRC})
-target_link_libraries(${shader_NAME} ${shader_LIB})
-add_custom_command(
-	TARGET ${shader_NAME} POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	"${PROJECT_SOURCE_DIR}/data"
-	$<TARGET_FILE_DIR:${shader_NAME}>
-)
 
-# Buoyancy2D executable
-set(buoyancy_2d_NAME buoyancy_2d)
-add_executable(${buoyancy_2d_NAME} ${buoyancy_2d_SRC})
-target_link_libraries(${buoyancy_2d_NAME} ${buoyancy_2d_LIB})
-add_custom_command(
-	TARGET ${buoyancy_2d_NAME} POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	"${PROJECT_SOURCE_DIR}/data"
-	$<TARGET_FILE_DIR:${buoyancy_2d_NAME}>
-)
+
+# Work through the source tree
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+add_subdirectory(src)
 
 
 

@@ -78,14 +78,12 @@ void Buoyancy2D::tick (float dt) {
 		posv.y -= EARTH_ACCEL*dt;
 		
 		// Apply buoyancy and drag
-		float speed = length(obj.posv);
-		Vec posv_squared = unit(obj.posv)*speed*speed;
 		Vec pt_last = rot*obj.points.back() + obj.pos;
 		bool below_last = is_left(pt_last, water);
+		// Each line segment
 		for (Poly::iterator it_pt=obj.points.begin(); it_pt!=obj.points.end(); ++it_pt) {
 			Vec pt = rot*(*it_pt) + obj.pos;
 			bool below = is_left(pt, water);
-			Vec force, r;
 			
 			// Test the nature of the segment
 			bool apply_buoyancy = true;
@@ -106,9 +104,8 @@ void Buoyancy2D::tick (float dt) {
 				Vec center = (pt_last + pt)*0.5f;
 				Vec norm = normal_i(pt - pt_last);
 				float pressure = distance(center, water)*25;
-				float drag = 0;//dot(norm, posv_squared)*2;
-				force = norm*(pressure - drag);
-				r = center-obj.pos;
+				Vec force = norm*pressure;
+				Vec r = center-obj.pos;
 				
 				rotv += cross(r, force)/obj.moment*dt;
 				posv += force/obj.area*dt;
@@ -148,14 +145,13 @@ void Buoyancy2D::tick (float dt) {
 				rotv += cross(pt-obj.pos, norm*-f2)/obj.moment*dt;
 				posv -= norm*(f1+f2)/obj.area*dt;
 			}
-			
 			pt_last = rot*(*it_pt) + obj.pos;
 			below_last = below;
 		}
 		
 		// Quick and incorrect drag
-		rotv *= 0.995f;
-		posv *= 0.995f;
+//		rotv *= 0.995f;
+//		posv *= 0.995f;
 		
 		// Integrate movement
 		obj.posv = posv;
