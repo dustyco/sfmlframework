@@ -1,19 +1,25 @@
 
 
 /*
+	Buoyancy2D
 	
+	model of MVC
+	Simulation, general logic
 */
-#include <iomanip>
+
+
 
 #pragma once
+#include <iomanip>
 #include <list>
 #include "sfmlframework.h"
 #include "geometry.h"
+using namespace std;
 using namespace hmath;
 typedef vec<2,float>   Vec;
 typedef mat<2,float>   Mat;
 typedef line<2,float>  Line;
-typedef std::list<Vec> Poly;
+typedef list<Vec>      Poly;
 
 
 // SI units
@@ -36,14 +42,14 @@ struct Buoyancy2D {
 		void init ();
 	};
 	
-	float  t;
-	Vec    mouse;
-	bool   grab, grab_last;
-	Vec    grab_r, grab_r_abs;
-	Line   water;
-	Poly   current, shadow;
-	std::list<Object> objects;
-	std::list<Line>   lines;
+	float        t;
+	Vec          mouse;
+	bool         grab, grab_last;
+	Vec          grab_r, grab_r_abs;
+	Line         water;
+	Poly         current, shadow;
+	list<Object> objects;
+	list<Line>   lines;
 	
 	void init            ();
 	void tick            (float dt);
@@ -58,8 +64,9 @@ void Buoyancy2D::init () {
 }
 
 void Buoyancy2D::tick (float dt) {
-	// Clear lines
-	lines.clear();
+	// Clear debug lines
+	debug_lines.clear();
+	
 	// Update drawing shadow
 	shadow.clear();
 	if (current.size()>=2) {
@@ -67,8 +74,9 @@ void Buoyancy2D::tick (float dt) {
 		shadow.push_back(*(--current.end()));
 		shadow.push_back(mouse);
 	}
+	
 	// Each object
-	for (std::list<Object>::iterator it_obj=objects.begin(); it_obj!=objects.end(); ++it_obj) {
+	for (list<Object>::iterator it_obj=objects.begin(); it_obj!=objects.end(); ++it_obj) {
 		Object& obj = *it_obj;
 		Mat rot(obj.rot);
 		Vec posv = obj.posv;
@@ -101,25 +109,29 @@ void Buoyancy2D::tick (float dt) {
 			// If segment is below water
 			if (apply_buoyancy) {
 				// Static pressure (buoyancy)
+				//   Given the depth of each face, find and apply static
+				//   pressure force
 				Vec center = (pt_last + pt)*0.5f;
 				Vec norm = normal_i(pt - pt_last);
 				float pressure = distance(center, water)*25;
 				Vec force = norm*pressure;
 				Vec r = center-obj.pos;
-				
 				rotv += cross(r, force)/obj.moment*dt;
 				posv += force/obj.area*dt;
 				
 				// Dynamic pressure (deflection)
+				//   Given the velocity of each endpoint of each submerged surface segment,
+				//   find and apply dynamic pressure force (drag + lift)
+				//   http://use.dustyco.net/math/dynamic-force.htm
 				Vec norm_unit = unit(norm);
 				Vec v1_abs = obj.posv - normal(pt_last-obj.pos)*obj.rotv;
 				Vec v2_abs = obj.posv - normal(pt-obj.pos)*obj.rotv;
-		//	lines.push_back(Line(pt_last, pt_last+v1_abs));
-		//	lines.push_back(Line(pt, pt+v2_abs));
+//	debug_lines.push_back(Line(pt_last, pt_last+v1_abs));
+//	debug_lines.push_back(Line(pt, pt+v2_abs));
 				float v1 = dot(norm_unit, v1_abs);
 				float v2 = dot(norm_unit, v2_abs);
-		//	lines.push_back(Line(pt_last, pt_last+norm_unit*v1));
-		//	lines.push_back(Line(pt, pt+norm_unit*v2));
+//	debug_lines.push_back(Line(pt_last, pt_last+norm_unit*v1));
+//	debug_lines.push_back(Line(pt, pt+norm_unit*v2));
 				float f1, f2; f1 = f2 = 0;
 				if (v1>0 != v2>0) {
 					// Different signs
@@ -139,8 +151,8 @@ void Buoyancy2D::tick (float dt) {
 				}
 				if (v2<0) f1 = -f1;
 				if (v1<0) f2 = -f2;
-		//	lines.push_back(Line(pt_last, pt_last+norm_unit*f1));
-		//	lines.push_back(Line(pt, pt+norm_unit*f2));
+//	debug_lines.push_back(Line(pt_last, pt_last+norm_unit*f1));
+//	debug_lines.push_back(Line(pt, pt+norm_unit*f2));
 				rotv += cross(pt_last-obj.pos, norm*-f1)/obj.moment*dt;
 				rotv += cross(pt-obj.pos, norm*-f2)/obj.moment*dt;
 				posv -= norm*(f1+f2)/obj.area*dt;
@@ -149,7 +161,7 @@ void Buoyancy2D::tick (float dt) {
 			below_last = below;
 		}
 		
-		// Quick and incorrect drag
+		// Quick and incorrect catch-all drag
 //		rotv *= 0.995f;
 //		posv *= 0.995f;
 		
@@ -160,6 +172,7 @@ void Buoyancy2D::tick (float dt) {
 		obj.rot += rotv*dt;
 	}
 	
+	// Apply drag force if needed
 	{
 		Object& obj = objects.front();
 		if (grab && !grab_last) {

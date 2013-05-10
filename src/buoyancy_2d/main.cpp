@@ -3,7 +3,8 @@
 /*
 	Buoyancy2D
 	
-	
+	view + control of MVC
+	Main loop, input, drawing, interface with SFML
 */
 
 
