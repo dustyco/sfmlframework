@@ -8,7 +8,6 @@
 */
 
 
-
 #pragma once
 #include <iomanip>
 #include <list>
@@ -23,11 +22,11 @@ typedef list<Vec>      Poly;
 
 
 // SI units
-const static float EARTH_ACCEL     = 9.80665;      // m / s^2
-//const static float WATER_DENSITY   = 1000.0;       // kg / m^3
-//const static float OBJECT_DENSITY  = 100.0;        // kg / m^3
+const static float EARTH_ACCEL     = 9.80665;  // m / s^2
+//const static float WATER_DENSITY   = 1000.0;   // kg / m^3
+//const static float OBJECT_DENSITY  = 100.0;    // kg / m^3
 
-const static float GRAB_STRENGTH   = 10.0;       // kg / m^3
+const static float GRAB_STRENGTH   = 10.0;     // kg / m^3
 const static int   TICKS_PER_FRAME = 1;
 
 
@@ -49,7 +48,7 @@ struct Buoyancy2D {
 	Line         water;
 	Poly         current, shadow;
 	list<Object> objects;
-	list<Line>   lines;
+	list<Line>   debug_lines;
 	
 	void init            ();
 	void tick            (float dt);
@@ -126,12 +125,14 @@ void Buoyancy2D::tick (float dt) {
 				Vec norm_unit = unit(norm);
 				Vec v1_abs = obj.posv - normal(pt_last-obj.pos)*obj.rotv;
 				Vec v2_abs = obj.posv - normal(pt-obj.pos)*obj.rotv;
-//	debug_lines.push_back(Line(pt_last, pt_last+v1_abs));
-//	debug_lines.push_back(Line(pt, pt+v2_abs));
+// Absolute velocity debug lines
+//debug_lines.push_back(Line(pt_last, pt_last+v1_abs));
+//debug_lines.push_back(Line(pt, pt+v2_abs));
 				float v1 = dot(norm_unit, v1_abs);
 				float v2 = dot(norm_unit, v2_abs);
-//	debug_lines.push_back(Line(pt_last, pt_last+norm_unit*v1));
-//	debug_lines.push_back(Line(pt, pt+norm_unit*v2));
+// Perpendicular velocity debug lines
+//debug_lines.push_back(Line(pt_last, pt_last+norm_unit*v1));
+//debug_lines.push_back(Line(pt, pt+norm_unit*v2));
 				float f1, f2; f1 = f2 = 0;
 				if (v1>0 != v2>0) {
 					// Different signs
@@ -151,8 +152,9 @@ void Buoyancy2D::tick (float dt) {
 				}
 				if (v2<0) f1 = -f1;
 				if (v1<0) f2 = -f2;
-//	debug_lines.push_back(Line(pt_last, pt_last+norm_unit*f1));
-//	debug_lines.push_back(Line(pt, pt+norm_unit*f2));
+// Force debug lines
+//debug_lines.push_back(Line(pt_last, pt_last+norm_unit*f1));
+//debug_lines.push_back(Line(pt, pt+norm_unit*f2));
 				rotv += cross(pt_last-obj.pos, norm*-f1)/obj.moment*dt;
 				rotv += cross(pt-obj.pos, norm*-f2)/obj.moment*dt;
 				posv -= norm*(f1+f2)/obj.area*dt;

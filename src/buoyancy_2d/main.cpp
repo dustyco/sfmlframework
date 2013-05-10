@@ -100,7 +100,7 @@ bool App::loop (int w, int h, double t)
 	drawLine(water.a, water.b);
 	
 	// Draw debug lines
-	for (std::list<Line>::iterator it = lines.begin(); it!=lines.end(); ++it)
+	for (std::list<Line>::iterator it = debug_lines.begin(); it!=debug_lines.end(); ++it)
 		drawLine(it->a, it->b);
 	
 //	line_sprite.rotate(dt*30);
