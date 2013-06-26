@@ -56,7 +56,7 @@ bool App::setup ()
 		dot_sprite.setOrigin(size.x/2, size.y/2);
 	} else return false;
 	
-	if (!texture.loadFromFile("still_life.jpg")) {
+	if (!texture.loadFromFile("color_correction_lut.jpg")) {
 		return false;
 	}
 	
@@ -74,7 +74,7 @@ bool App::setup ()
 	// Load shader
 	char* shader_source;
 	int   shader_source_size;
-	if (!loadFile("test.glslf", &shader_source, &shader_source_size)) {
+	if (!loadFile("color_correction_lut.glslf", &shader_source, &shader_source_size)) {
 		cout << "Error loading shader source" << endl;
 		return false;
 	}
