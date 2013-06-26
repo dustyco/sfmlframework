@@ -76,6 +76,12 @@ message(" OPENGL_INCLUDE_DIR: ${OPENGL_INCLUDE_DIR}")
 message(" OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
 message("OPENGL_gl_LIBRARY: ${OPENGL_gl_LIBRARY}")
 
+# Find GLEW
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIR})
+message(" GLEW_INCLUDE_DIRS: ${GLEW_INCLUDE_DIRS}")
+message(" GLEW_LIBRARIES: ${GLEW_LIBRARIES}")
+
 
 # Find SFML
 if (MSVC)
@@ -94,6 +100,23 @@ if (MINGW)
 endif ()
 
 
+# Find Boost ##################################################################
+if(Boost_USE_STATIC_LIBS STREQUAL "")
+	set(Boost_USE_STATIC_LIBS TRUE)
+endif()
+set(BOOST_ROOT_ENV $ENV{BOOST_ROOT})
+if(BOOST_ROOT_ENV)
+	# Get boost from a specifically defined folder
+	set(BOOST_ROOT $ENV{BOOST_ROOT})
+	message("BOOST_ROOT: " ${BOOST_ROOT})
+elseif(WIN32)
+	# Get boost from the ogre sdk
+	set(BOOST_ROOT $ENV{OGRE_HOME}/boost)
+	message("BOOST_ROOT: " ${BOOST_ROOT})
+endif()
+message("Boost_USE_STATIC_LIBS: ${Boost_USE_STATIC_LIBS}")
+find_package(Boost COMPONENTS system date_time)
+include_directories(${Boost_INCLUDE_DIR})
 
 
 # Work through the source tree

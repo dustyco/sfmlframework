@@ -270,7 +270,7 @@ namespace hmath {
 		// Origin
 		return 0.0f;
 	}
-	// 3D only
+	// 3D: Return the cross product of 2 vectors
 	template <class R>        vec<3,R>  cross      (const vec<3,R>& v1, const vec<3,R>& v2) {
 		return vec<3,R>(
 			v1.y*v2.z - v1.z*v2.y,
@@ -278,9 +278,9 @@ namespace hmath {
 			v1.x*v2.y - v1.y*v2.x
 		);
 	}
-	// 2D specialization of the 3D version which assumes
-	// the input vectors are on the same plane and returns
-	// the signed magnitude of the result
+	// 2D: A specialization of the 3D version which assumes
+	// the input vectors have no Z component (2D) and returns
+	// only the Z component of the output which has no X or Y components (scalar)
 	template <class R>               R  cross      (const vec<2,R>& v1, const vec<2,R>& v2) {
 		return v1.x*v2.y - v1.y*v2.x;
 	}

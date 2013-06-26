@@ -155,8 +155,8 @@ void Buoyancy2D::tick (float dt) {
 // Force debug lines
 //debug_lines.push_back(Line(pt_last, pt_last+norm_unit*f1));
 //debug_lines.push_back(Line(pt, pt+norm_unit*f2));
-				rotv += cross(pt_last-obj.pos, norm*-f1)/obj.moment*dt;
-				rotv += cross(pt-obj.pos, norm*-f2)/obj.moment*dt;
+				rotv -= cross(pt_last-obj.pos, norm*f1)/obj.moment*dt;
+				rotv -= cross(pt-obj.pos, norm*f2)/obj.moment*dt;
 				posv -= norm*(f1+f2)/obj.area*dt;
 			}
 			pt_last = rot*(*it_pt) + obj.pos;
