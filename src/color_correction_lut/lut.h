@@ -13,12 +13,12 @@ typedef vec<3,uint8_t> Vec3u8;
 template <class Functor>
 void makeLut (Functor& f, Vec3f* lut, int size)
 {
-	float period = 1.0 / (size-1);
+	float period = float(1) / (size-1);
 	for (int z=0; z!=size; ++z)
 	for (int y=0; y!=size; ++y)
 	for (int x=0; x!=size; ++x)
 	{
-		*(lut++) = f(Vec3f(period*x, period*y, period*z));
+		*(lut++) = f(Vec3f(x, y, z)*period);
 	}
 }
 
@@ -171,11 +171,11 @@ struct ColorTransform
 //		return hsvToRgb(rgbToHsv(in) * Vec3f(1, 2, 1) + Vec3f(360, 0, 0));
 		Vec3f hsv = rgbToHsv(in);
 		hsv.x = fmod(hsv.x+0, 360);
-		hsv.y = pow(hsv.y, 1.1);
-		hsv.y *= 1.2;
+		hsv.y = pow(hsv.y, 1.5);
+		hsv.y *= 1.0;
 //		hsv.y = 1;
 //		hsv.z = 1;
-		return hsvToRgb(hsv) * Vec3f(0, 0, 1);
+		return hsvToRgb(hsv) * Vec3f(1, 1, 1);
 	}
 };
 
