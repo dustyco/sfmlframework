@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <vector>
 #include <GL/glew.h>
 #include "GL/gl.h"
 #include "sfmlframework.h"
@@ -122,10 +123,168 @@ bool App::setup ()
 
 bool App::lutInit ()
 {
-	int size = 8;
+	int size = 4;
+	
+	std::vector<Vec3f> lut;
+	lut.push_back(Vec3f( 0, 0, 0 ));
+	lut.push_back(Vec3f( 91, 0, 0 ));
+	lut.push_back(Vec3f( 170, 0, 0 ));
+	lut.push_back(Vec3f( 255, 0, 0 ));
+	lut.push_back(Vec3f( 0, 102, 0 ));
+	lut.push_back(Vec3f( 89, 98, 0 ));
+	lut.push_back(Vec3f( 196, 99, 0 ));
+	lut.push_back(Vec3f( 255, 67, 0 ));
+	lut.push_back(Vec3f( 0, 195, 0 ));
+	lut.push_back(Vec3f( 40, 170, 0 ));
+	lut.push_back(Vec3f( 158, 182, 0 ));
+	lut.push_back(Vec3f( 255, 160, 0 ));
+	lut.push_back(Vec3f( 0, 255, 0 ));
+	lut.push_back(Vec3f( 0, 0, 255 ));
+	lut.push_back(Vec3f( 94, 255, 0 ));
+	lut.push_back(Vec3f( 200, 255, 0 ));
+	lut.push_back(Vec3f( 0, 0, 63 ));
+	lut.push_back(Vec3f( 97, 0, 64 ));
+	lut.push_back(Vec3f( 187, 0, 57 ));
+	lut.push_back(Vec3f( 255, 0, 50 ));
+	lut.push_back(Vec3f( 0, 102, 80 ));
+	lut.push_back(Vec3f( 77, 77, 60 ));
+	lut.push_back(Vec3f( 169, 70, 43 ));
+	lut.push_back(Vec3f( 255, 50, 32 ));
+	lut.push_back(Vec3f( 0, 169, 62 ));
+	lut.push_back(Vec3f( 50, 157, 43 ));
+	lut.push_back(Vec3f( 160, 181, 35 ));
+	lut.push_back(Vec3f( 255, 160, 23 ));
+	lut.push_back(Vec3f( 0, 255, 60 ));
+	lut.push_back(Vec3f( 0, 255, 54 ));
+	lut.push_back(Vec3f( 84, 255, 24 ));
+	lut.push_back(Vec3f( 208, 255, 0 ));
+	lut.push_back(Vec3f( 0, 0, 133 ));
+	lut.push_back(Vec3f( 83, 0, 98 ));
+	lut.push_back(Vec3f( 170, 0, 105 ));
+	lut.push_back(Vec3f( 255, 0, 140 ));
+	lut.push_back(Vec3f( 0, 78, 161 ));
+	lut.push_back(Vec3f( 87, 63, 120 ));
+	lut.push_back(Vec3f( 170, 51, 104 ));
+	lut.push_back(Vec3f( 255, 15, 91 ));
+	lut.push_back(Vec3f( 0, 180, 137 ));
+	lut.push_back(Vec3f( 46, 162, 117 ));
+	lut.push_back(Vec3f( 155, 160, 120 ));
+	lut.push_back(Vec3f( 255, 142, 108 ));
+	lut.push_back(Vec3f( 0, 255, 137 ));
+	lut.push_back(Vec3f( 0, 255, 54 ));
+	lut.push_back(Vec3f( 86, 255, 98 ));
+	lut.push_back(Vec3f( 217, 255, 83 ));
+	lut.push_back(Vec3f( 0, 0, 208 ));
+	lut.push_back(Vec3f( 93, 0, 106 ));
+	lut.push_back(Vec3f( 168, 0, 153 ));
+	lut.push_back(Vec3f( 255, 0, 212 ));
+	lut.push_back(Vec3f( 0, 0, 224 ));
+	lut.push_back(Vec3f( 100, 0, 205 ));
+	lut.push_back(Vec3f( 187, 35, 199 ));
+	lut.push_back(Vec3f( 255, 0, 180 ));
+	lut.push_back(Vec3f( 0, 153, 255 ));
+	lut.push_back(Vec3f( 73, 132, 255 ));
+	lut.push_back(Vec3f( 154, 130, 185 ));
+	lut.push_back(Vec3f( 255, 128, 186 ));
+	lut.push_back(Vec3f( 0, 239, 255 ));
+	lut.push_back(Vec3f( 0, 241, 195 ));
+	lut.push_back(Vec3f( 83, 255, 200 ));
+	lut.push_back(Vec3f( 255, 255, 255 ));
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+/*	lut.push_back(Vec3f(0, 0, 0));
+	lut.push_back(Vec3f(0, 0, 63));
+	lut.push_back(Vec3f(0, 0, 133));
+	lut.push_back(Vec3f(0, 0, 208));
+	lut.push_back(Vec3f(0, 102, 0));
+	lut.push_back(Vec3f(0, 102, 80));
+	lut.push_back(Vec3f(0, 78, 161));
+	lut.push_back(Vec3f(0, 0, 224));
+	lut.push_back(Vec3f(0, 195, 0));
+	lut.push_back(Vec3f(0, 169, 62));
+	lut.push_back(Vec3f(0, 180, 137));
+	lut.push_back(Vec3f(0, 153, 255));
+	lut.push_back(Vec3f(0, 255, 0));
+	lut.push_back(Vec3f(0, 255, 60));
+	lut.push_back(Vec3f(0, 255, 137));
+	lut.push_back(Vec3f(0, 239, 255));
+	lut.push_back(Vec3f(91, 0, 0));
+	lut.push_back(Vec3f(97, 0, 64));
+	lut.push_back(Vec3f(83, 0, 98));
+	lut.push_back(Vec3f(93, 0, 106));
+	lut.push_back(Vec3f(89, 98, 0));
+	lut.push_back(Vec3f(77, 77, 60));
+	lut.push_back(Vec3f(87, 63, 120));
+	lut.push_back(Vec3f(100, 0, 205));
+	lut.push_back(Vec3f(40, 170, 0));
+	lut.push_back(Vec3f(50, 157, 43));
+	lut.push_back(Vec3f(46, 162, 117));
+	lut.push_back(Vec3f(73, 132, 255));
+	lut.push_back(Vec3f(0, 0, 255));
+	lut.push_back(Vec3f(0, 255, 54));
+	lut.push_back(Vec3f(0, 255, 54));
+	lut.push_back(Vec3f(0, 241, 195));
+	lut.push_back(Vec3f(170, 0, 0));
+	lut.push_back(Vec3f(187, 0, 57));
+	lut.push_back(Vec3f(170, 0, 105));
+	lut.push_back(Vec3f(168, 0, 153));
+	lut.push_back(Vec3f(196, 99, 0));
+	lut.push_back(Vec3f(169, 70, 43));
+	lut.push_back(Vec3f(170, 51, 104));
+	lut.push_back(Vec3f(187, 35, 199));
+	lut.push_back(Vec3f(158, 182, 0));
+	lut.push_back(Vec3f(160, 181, 35));
+	lut.push_back(Vec3f(155, 160, 120));
+	lut.push_back(Vec3f(154, 130, 185));
+	lut.push_back(Vec3f(94, 255, 0));
+	lut.push_back(Vec3f(84, 255, 24));
+	lut.push_back(Vec3f(86, 255, 98));
+	lut.push_back(Vec3f(83, 255, 200));
+	lut.push_back(Vec3f(255, 0, 0));
+	lut.push_back(Vec3f(255, 0, 50));
+	lut.push_back(Vec3f(255, 0, 140));
+	lut.push_back(Vec3f(255, 0, 212));
+	lut.push_back(Vec3f(255, 67, 0));
+	lut.push_back(Vec3f(255, 50, 32));
+	lut.push_back(Vec3f(255, 15, 91));
+	lut.push_back(Vec3f(255, 0, 180));
+	lut.push_back(Vec3f(255, 160, 0));
+	lut.push_back(Vec3f(255, 160, 23));
+	lut.push_back(Vec3f(255, 142, 108));
+	lut.push_back(Vec3f(255, 128, 186));
+	lut.push_back(Vec3f(200, 255, 0));
+	lut.push_back(Vec3f(208, 255, 0));
+	lut.push_back(Vec3f(217, 255, 83));
+	lut.push_back(Vec3f(255, 255, 255));
+*/
+
+	for (std::vector<Vec3f>::iterator it=lut.begin(); it!=lut.end(); ++it)
+	{
+		 *it *= 1.0f/255.0f;
+//		 cout << *it << endl;
+	}
+	
+	
 	float* data = new float[3*size*size*size];
 	ColorTransform f;
 	makeLut(f, (Vec3f*)data, size);
+	
 	
 	glGenTextures(1, &lut_texture);
 	glBindTexture(GL_TEXTURE_3D, lut_texture);
@@ -139,7 +298,7 @@ bool App::lutInit ()
 		size, size, size,
 		0,
 		GL_RGB, GL_FLOAT,
-		(const GLvoid*)data
+		(const GLvoid*)(&lut[0])
 	);
 	delete data;
 	
@@ -179,16 +338,19 @@ bool App::loop (int w, int h, double t)
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_3D, lut_texture);
 	
+	float aspect = float(texture.getSize().x)/texture.getSize().y;
+	float window_aspect = float(w)/h;
+	
 	// Draw a rectangle
 	glBegin(GL_QUADS);	
 		glTexCoord2f(0, 1);
 		glVertex2f(0, 0);
 
 		glTexCoord2f(1, 1);
-		glVertex2f(w, 0);
+		glVertex2f(aspect*w/window_aspect, 0);
 		
 		glTexCoord2f(1, 0);
-		glVertex2f(w, h);
+		glVertex2f(aspect*w/window_aspect, h);
 		
 		glTexCoord2f(0, 0);
 		glVertex2f(0, h);
@@ -197,7 +359,7 @@ bool App::loop (int w, int h, double t)
 	glUseProgram(0);
 	
 	glDisable (GL_FRAGMENT_SHADER);
-	glEnable (GL_LINE_SMOOTH);
+/*	glEnable (GL_LINE_SMOOTH);
 	glEnable (GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glHint (GL_LINE_SMOOTH_HINT, GL_NICEST);
@@ -222,7 +384,7 @@ bool App::loop (int w, int h, double t)
 	Vec2f scale(w, h);
 	drawLine(Vec2f(0.1, 0.1)*scale, Vec2f(0.5, 0.7)*scale, sf::Color(255, 100, 0, 255));
 	drawLine(Vec2f(0.5, 0.7)*scale, Vec2f(0.9, 0.9)*scale, sf::Color(255, 100, 0, 255));
-	
+*/	
 	
 	window.popGLStates();
 	
